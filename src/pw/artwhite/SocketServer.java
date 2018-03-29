@@ -1,8 +1,6 @@
 package pw.artwhite;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -17,13 +15,17 @@ public class SocketServer {
             OutputStream outputStream = clientSocket.getOutputStream();
             System.out.println("Новое соединение: " + clientSocket.getInetAddress().toString());
 
-            int request;
+            BufferedReader bufIn = new BufferedReader( new InputStreamReader( inputStream ) );
+            BufferedWriter bufOut = new BufferedWriter( new OutputStreamWriter( outputStream ) );
 
-            while ((request = inputStream.read()) != -1) {
-                System.out.println("Клиент отправил: " + request);
-                outputStream.write(++request);
-                System.out.println("Сервер отправил: " + request);
-                outputStream.flush();
+            String msg;
+
+            while ((msg = bufIn.readLine()) != "") {
+                System.out.println("Клиент отправил: " + msg);
+                bufOut.write(msg);
+                System.out.println("Сервер отправил: " + msg);
+                bufOut.newLine(); //HERE!!!!!!
+                bufOut.flush();
                 Thread.sleep(2000);
             }
 

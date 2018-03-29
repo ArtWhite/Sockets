@@ -1,30 +1,39 @@
 package pw.artwhite;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.Socket;
+import java.util.Scanner;
 
 
 public class ClientSocket {
+
+    static Scanner sc = new Scanner(System.in);
+
     public static void main(String[] args) {
+
         try (Socket socket = new Socket("localhost", 8080)) {
 
             InputStream inputStream = socket.getInputStream();
             OutputStream outputStream = socket.getOutputStream();
 
-            int response = 1;
-            outputStream.write(response);
-            System.out.println("Отправил серверу: " + response);
+            BufferedReader bufIn = new BufferedReader( new InputStreamReader( inputStream ) );
+            BufferedWriter bufOut = new BufferedWriter( new OutputStreamWriter( outputStream ) );
 
-            while ((response = inputStream.read()) != -1) {
-                System.out.println("Сервер прислал: " + response);
+            String msg = "Привет";
 
-                if (response >= 10) break;
+            bufOut.write(msg);
+            System.out.println("Отправил серверу: " + msg);
+            bufOut.newLine(); //HERE!!!!!!
+            bufOut.flush();
 
-                outputStream.write(++response);
-                System.out.println("Отправляем серверу" + response);
-                outputStream.flush();
+            while ((msg = bufIn.readLine()) != "") {
+                if (msg == "") break;
+                System.out.println("Сервер прислал: " + msg);
+                msg = sc.nextLine();
+                bufOut.write(msg);
+                System.out.println("Ты отправил: " + msg);
+                bufOut.newLine(); //HERE!!!!!!
+                bufOut.flush();
                 Thread.sleep(2000);
             }
         } catch (IOException | InterruptedException e) {
